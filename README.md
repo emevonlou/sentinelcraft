@@ -52,7 +52,7 @@ replace professional security tools
 
 All scripts run locally and are meant for educational use.
 
-# Ethics & responsibility
+##  Ethics & responsibility
 
 Respect:
 
@@ -63,6 +63,15 @@ Mojang terms
 Local laws
 
 Ethical security principles
+
+## Usage
+
+### Quick run (Linux)
+
+```bash
+./tools/run_linux_lunar.sh
+```
+Outputs are saved locally in reports/ and are gitignored.
 
 ## Why this project exists
 
