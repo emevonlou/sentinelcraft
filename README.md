@@ -5,13 +5,13 @@ A defensive security project focused on helping Minecraft players understand and
 Este repositório é educacional, defensivo e ético.
 Ele não coleta dados, não interage com servidores de jogos e não viola regras.
 
-# Available languages:
+## Available languages:
 
 🇧🇷 Português: pt-br/README.md
 
 🇺🇸 English: en-us/README.md
 
-# Project goals:
+## Project goals:
 
 Promote security awareness among gamers
 
@@ -38,7 +38,7 @@ A practical checklist for gamers:
 - [`PLAYER_CHECKLIST.md`](PLAYER_CHECKLIST.md)
 
 
-# Disclaimer
+## Disclaimer
 
 This project does not:
 
