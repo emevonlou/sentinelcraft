@@ -2,9 +2,9 @@
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Hypixel Security",
   "version": "0.1.0",
-  "identifier": "com.tauri.dev",
+  "identifier": "com.emevonlou.minecrafthypixelsecurity",
   "build": {
-    "frontendDist": "../",
+    "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
     "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build"
@@ -25,7 +25,7 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all",
+    "targets": ["rpm]",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
