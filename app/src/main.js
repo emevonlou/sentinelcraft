@@ -5,7 +5,29 @@ const state = {
   verbose: false,
   lastOutput: "",
   lastReportName: "",
+  isRunning: false,
 };
+
+function setStatus(text) {
+  const el = document.querySelector("#statusText");
+  if (el) el.textContent = text;
+}
+
+function setBusy(isBusy) {
+  state.isRunning = isBusy;
+
+  const buttons = document.querySelectorAll("button[data-action]");
+  buttons.forEach((b) => {
+    b.disabled = isBusy;
+  });
+
+  const exportBtn = document.querySelector("#exportBtn");
+  if (exportBtn) {
+    exportBtn.disabled = isBusy || !state.lastOutput;
+  }
+
+  setStatus(isBusy ? "Running..." : "Done");
+}
 
 function nowStamp() {
   const d = new Date();
@@ -29,13 +51,20 @@ function buildSummary(text) {
   }
 
   const freq = new Map();
-  for (const ip of ips) freq.set(ip, (freq.get(ip) || 0) + 1);
+  for (const ip of ips) {
+    freq.set(ip, (freq.get(ip) || 0) + 1);
+  }
 
   const topIps = [...freq.entries()]
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5);
 
-  return { listenCount, javaMention, mcPortMention, topIps };
+  return {
+    listenCount,
+    javaMention,
+    mcPortMention,
+    topIps,
+  };
 }
 
 function renderSummary() {
@@ -71,8 +100,10 @@ function renderSummary() {
 function setOutput(text) {
   state.lastOutput = text;
   const out = document.querySelector("#output");
-  out.value = text;
-  out.scrollTop = out.scrollHeight;
+  if (out) {
+    out.value = text;
+    out.scrollTop = out.scrollHeight;
+  }
   renderSummary();
 }
 
@@ -80,21 +111,8 @@ function appendOutput(line) {
   setOutput((state.lastOutput ? state.lastOutput + "\n" : "") + line);
 }
 
-function setStatus(text) {
-  const el = document.querySelector("#status");
-  el.textContent = text;
-}
-
-function setBusy(isBusy) {
-  const buttons = document.querySelectorAll("button[data-action]");
-  buttons.forEach((b) => (b.disabled = isBusy));
-  document.querySelector("#exportBtn").disabled = isBusy || !state.lastOutput;
-}
-
-// Placeholder: next step we will replace this with Tauri invoke + allowlist backend
 async function runCheck(checkId, label) {
   setBusy(true);
-  setStatus("Running...");
 
   const stamp = nowStamp();
   const v = state.verbose ? "ON" : "OFF";
@@ -130,7 +148,7 @@ async function runCheck(checkId, label) {
     }
 
     state.lastReportName = `report_${checkId}_${stamp}.txt`;
-    // Auto-save to repo reports/ (dev)
+
     try {
       const savedPath = await invoke("save_report", {
         filename: state.lastReportName,
@@ -143,13 +161,10 @@ async function runCheck(checkId, label) {
       appendOutput("[!] Auto-save failed (download export still works).");
       appendOutput(String(e));
     }
-
-    setStatus("Done");
   } catch (e) {
     appendOutput("");
     appendOutput("[!] Failed to run check.");
     appendOutput(String(e));
-    setStatus("Error");
   } finally {
     setBusy(false);
   }
@@ -158,14 +173,15 @@ async function runCheck(checkId, label) {
 function exportReport() {
   const stamp = nowStamp();
   const filename = state.lastReportName || `report_${stamp}.txt`;
-  const blob = new Blob([state.lastOutput || ""], { type: "text/plain;charset=utf-8" });
+  const blob = new Blob([state.lastOutput || ""], {
+    type: "text/plain;charset=utf-8",
+  });
 
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
   a.download = filename;
   document.body.appendChild(a);
   a.click();
-
   URL.revokeObjectURL(a.href);
   document.body.removeChild(a);
 
@@ -188,7 +204,7 @@ document.querySelector("#app").innerHTML = `
         </label>
         <div class="status">
           <span class="dot"></span>
-          <span id="status">Ready</span>
+          <span id="statusText">Ready</span>
         </div>
       </div>
     </header>
@@ -197,8 +213,7 @@ document.querySelector("#app").innerHTML = `
       <section class="card">
         <h2>Checks</h2>
         <p class="hint">
-          These buttons will run your existing scripts via Tauri backend.
-          For now, the UI is wired and ready.
+          Local-only checks executed via a strict backend allowlist.
         </p>
 
         <div class="btnGrid">
@@ -216,7 +231,7 @@ document.querySelector("#app").innerHTML = `
           </div>
           <div class="metaRow">
             <span class="k">Safety</span>
-            <span class="v">Allowlist execution (next step). No arbitrary commands.</span>
+            <span class="v">Allowlist execution only. No arbitrary commands.</span>
           </div>
         </div>
       </section>
@@ -226,11 +241,18 @@ document.querySelector("#app").innerHTML = `
           <h2>Output</h2>
           <button id="exportBtn" class="secondary">Export report</button>
         </div>
+
         <div id="summary" class="summary"></div>
-        <textarea id="output" spellcheck="false" readonly placeholder="Output will appear here..."></textarea>
+
+        <textarea
+          id="output"
+          spellcheck="false"
+          readonly
+          placeholder="Output will appear here..."
+        ></textarea>
 
         <p class="footnote">
-          Tip: after we connect the backend, you’ll be able to run checks and export reports with one click.
+          Reports are auto-saved locally and ignored by Git.
         </p>
       </section>
     </main>
@@ -249,7 +271,7 @@ document.querySelectorAll("button[data-action]").forEach((btn) => {
       linux_system: { id: "linux_system", label: "Linux System Check" },
       linux_mods: { id: "linux_mods", label: "Linux Mod Awareness" },
       linux_network: { id: "linux_network", label: "Linux Network Awareness" },
-      linux_lunar: { id: "linux_lunar", label: "Linux Lunar/Hypixel Baseline" },    
+      linux_lunar: { id: "linux_lunar", label: "Linux Lunar/Hypixel Baseline" },
       windows_network: { id: "windows_network", label: "Windows Network Awareness" },
     };
 
