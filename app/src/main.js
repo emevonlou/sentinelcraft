@@ -193,7 +193,7 @@ document.querySelector("#app").innerHTML = `
   <div class="shell">
     <header class="top">
       <div>
-        <h1>Minecraft Hypixel Security</h1>
+	<h1>SentinelCraft</h1>
         <p class="subtitle">Local-only defensive checks (Linux + Windows)</p>
       </div>
 
