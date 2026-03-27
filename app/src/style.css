@@ -265,3 +265,8 @@ textarea#output {
     min-height: 320px;
   }
 }
+
+.actions {
+  display: flex;
+  gap: 8px;
+}

@@ -237,10 +237,13 @@ document.querySelector("#app").innerHTML = `
       </section>
 
       <section class="card">
-        <div class="outHead">
-          <h2>Output</h2>
-          <button id="exportBtn" class="secondary">Export report</button>
-        </div>
+       <div class="outHead">
+  	<h2>Output</h2>
+  	<div class="actions">
+           <button id="clearBtn" class="secondary">Clear</button>
+           <button id="exportBtn" class="secondary">Export report</button>
+         </div>
+       </div>
 
         <div id="summary" class="summary"></div>
 
@@ -281,6 +284,12 @@ document.querySelectorAll("button[data-action]").forEach((btn) => {
 });
 
 document.querySelector("#exportBtn").addEventListener("click", exportReport);
+document.querySelector("#clearBtn").addEventListener("click", () => {
+  state.lastOutput = "";
+  state.lastReportName = "";
+  setOutput("");
+  setStatus("Ready");
+});
 
 setBusy(false);
 setStatus("Ready");
